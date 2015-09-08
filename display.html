@@ -1,0 +1,89 @@
+<div id="q_container"></div>
+<div id="mainlayout">
+    <div id="leftcolumn">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td class="question_leftcolmn"></td>
+                <td class="turbottomborder"><span class="heading1"><?php echo get_string('interaction_type', 'qtype_turtipskupon'); ?></span></td>
+                <td class="question_rightcolmn turbottomborder truefalse"><?php echo get_string('true_false_label', 'qtype_turtipskupon'); ?></td>
+            </tr>
+            <?php $anscount = count($anss); $col1count = ceil($anscount / 2); ?>
+            <?php $col1arr = array_slice($anss, 0, $col1count); ?>
+            <?php $col2arr = array_slice($anss, $col1count, $anscount - $col1count); ?>
+            <?php $qcounter = 0; ?>
+            <?php $row = 1; $tc = 1; foreach ($col1arr as $answer) { ?>
+            <?php $qcounter++; ?>
+            <tr class="cellspacer-top"><td></td><td></td><td></td></tr>
+            <tr>
+                <td class="question_leftcolmn"><?php echo $answer->answersound;?></td>
+                <td class="question_midcolmn <?php if($answer->feedback != '') {echo 'answertext_feedback'; } else { echo 'anwsertext'; } ?>"><?php echo $qcounter. '. ' . $answer->text; ?></td>
+                <td class="question_rightcolmn"><?php echo $answer->control; ?></td>
+            </tr>
+            <tr>
+                <td class="question_leftcolmn"><?php if($answer->feedback != '') { echo $answer->feedbacksound; } ?></td>
+                <td class="question_midcolmn feedbacktext turbottomborder"><?php echo $answer->feedback; ?></td>
+                <td class="question_rightcolmn turbottomborder"><span><?php echo $answer->feedbackimg; ?></span></td>
+            </tr>
+            <?php $tc++; } ?>
+        </table>
+    </div>
+
+    <div id="centercolumn">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td class="question_leftcolmn"></td>
+                <td class="turbottomborder">
+                    <?php if($answer->feedback != '') { ?>
+                    <span class="correctfbtext"><?php echo $correctfbtext; ?></span>
+                    <?php } ?>
+                </td>
+                <td class="question_rightcolmn turbottomborder truefalse"><?php echo get_string('true_false_label', 'qtype_turtipskupon'); ?></td>
+            </tr>
+            <?php $row = 1; $tc = 1; foreach ($col2arr as $answer) { ?>
+            <?php $qcounter++; ?>
+            <tr class="cellspacer-top"><td></td><td></td><td></td></tr>
+            <tr>
+                <td class="question_leftcolmn"><?php echo $answer->answersound;?></td>
+                <td class="question_midcolmn <?php if($answer->feedback != '') {echo 'answertext_feedback'; } else { echo 'anwsertext'; } ?>"><?php echo $qcounter. '. ' . $answer->text; ?></td>
+                <td class="question_rightcolmn"><?php echo $answer->control; ?></td>
+            </tr>
+            <tr>
+                <td class="question_leftcolmn"><?php if($answer->feedback != '') { echo $answer->feedbacksound; } ?></td>
+                <td class="question_midcolmn feedbacktext turbottomborder"><?php echo $answer->feedback; ?></td>
+                <td class="question_rightcolmn turbottomborder"><span><?php echo $answer->feedbackimg; ?></span></td>
+            </tr>
+            <?php $tc++; } ?>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function init_page() {
+        var layout = new YAHOO.widget.Layout('q_container',{
+            width: 980,
+            height: 600,
+            units: [
+                { position: 'top', height: 15}, //Height required here
+                { position: 'right', width:30}, //Width required here
+                { position: 'bottom', height: 0 }, //Height required here
+                { position: 'left', width: 450, gutter: '0 0 0 25', body: 'leftcolumn'}, //Width required here
+                { position: 'center', width: 450, gutter: '0 0 0 50', body: 'centercolumn' }
+            ]
+        });
+        layout.render();
+    }
+    YAHOO.util.Event.onDOMReady(init_page);
+
+    function navigatemenu() {
+        if (confirm("<?php echo get_string('menu_navigation_warning', 'qtype_turtipskupon'); ?>")) {
+            window.location = "<?php echo $CFG->wwwroot . '/course/view.php?id=' . $COURSE->id; ?>";
+        }
+    }
+</script>
+
+<div class="prevnextquestion">
+    <input type="button" name="menu" id="menunavigate" value="<?php echo get_string('menu', 'qtype_turtipskupon'); ?>" onclick="navigatemenu()"/>
+</div>
+
+<!--Add the audio controller-->
+<audio type="audio/mp3" preload="auto" src=""></audio>
