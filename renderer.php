@@ -1,24 +1,9 @@
 <?php
 
-/**
- * Multiple choice question renderer classes.
- *
- * @package    qtype
- * @subpackage turtipskupon
- */
-
-
 defined('MOODLE_INTERNAL') || die();
 
-
-/**
- * Base class for generating the bits of output common to multiple choice
- * single and multiple questions.
- *
- * @copyright  2009 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 abstract class qtype_turtipskupon_renderer_base extends qtype_with_combined_feedback_renderer {
+
     protected abstract function get_input_type();
 
     protected abstract function get_input_name(question_attempt $qa, $value);
@@ -26,6 +11,40 @@ abstract class qtype_turtipskupon_renderer_base extends qtype_with_combined_feed
     protected abstract function get_input_value($value);
 
     protected abstract function get_input_id(question_attempt $qa, $value);
+
+    protected function get_answersound(question_answer $ans, $contextid, $slot, $usageid) {
+
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($contextid, 'question', 'answersound', $ans->id);
+        $file = end($files);
+        $filename = $file->get_filename();
+
+        return moodle_url::make_file_url('/pluginfile.php',
+                "/$contextid/question/answersound/$usageid/$slot/$ans->id/$filename");
+    }
+
+    protected function get_questionimage($questionid, $contextid, $slot, $usageid) {
+
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($contextid, 'question', 'questionimage', $questionid);
+        $file = end($files);
+        $filename = $file->get_filename();
+
+        return moodle_url::make_file_url('/pluginfile.php',
+                "/$contextid/question/questionimage/$usageid/$slot/$questionid/$filename");
+    }
+
+
+    protected function get_questionsound($questionid, $contextid, $slot, $usageid) {
+
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($contextid, 'question', 'questionsound', $questionid);
+        $file = end($files);
+        $filename = $file->get_filename();
+
+        return moodle_url::make_file_url('/pluginfile.php',
+                "/$contextid/question/questionsound/$usageid/$slot/$questionid/$filename");
+    }
 
     /**
      * Whether a choice should be considered right, wrong or partially right.
@@ -36,8 +55,7 @@ abstract class qtype_turtipskupon_renderer_base extends qtype_with_combined_feed
 
     protected abstract function prompt();
 
-    public function formulation_and_controls(question_attempt $qa,
-            question_display_options $options) {
+    public function formulation_and_controls(question_attempt $qa, question_display_options $options) {
 
         $question = $qa->get_question();
         $response = $question->get_response($qa);
@@ -67,6 +85,11 @@ abstract class qtype_turtipskupon_renderer_base extends qtype_with_combined_feed
             } else {
                 unset($inputattributes['checked']);
             }
+
+            $answersound = html_writer::div('', 'audioplay',
+                    array('data-src' => $this->get_answersound($ans,
+                            $question->contextid, $qa->get_slot(), $qa->get_usage_id())));
+
             $hidden = '';
             if (!$options->readonly && $this->get_input_type() == 'checkbox') {
                 $hidden = html_writer::empty_tag('input', array(
@@ -75,13 +98,19 @@ abstract class qtype_turtipskupon_renderer_base extends qtype_with_combined_feed
                     'value' => 0,
                 ));
             }
-            $radiobuttons[] = $hidden . html_writer::empty_tag('input', $inputattributes) .
+            $radiobuttons[] = $answersound . $hidden .
                     html_writer::tag('label',
-                        $this->number_in_style($value, $question->answernumbering) .
-                        $question->make_html_inline($question->format_text(
-                                $ans->answer, $ans->answerformat,
-                                $qa, 'question', 'answer', $ansid)),
-                    array('for' => $inputattributes['id']));
+                        $question->make_html_inline(
+                                        $question->format_text(
+                                            $ans->answer,
+                                            $ans->answerformat,
+                                            $qa,
+                                            'question',
+                                            'answer',
+                                            $ansid
+                                        )
+                                    ),
+                    array('for' => $inputattributes['id'])) . html_writer::empty_tag('input', $inputattributes);
 
             // Param $options->suppresschoicefeedback is a hack specific to the
             // oumultiresponse question type. It would be good to refactor to
@@ -107,6 +136,9 @@ abstract class qtype_turtipskupon_renderer_base extends qtype_with_combined_feed
         }
 
         $result = '';
+        $result .= html_writer::div('', 'audioplay',
+                array('data-src' => $this->get_questionsound($question->id,
+                        $question->contextid, $qa->get_slot(), $qa->get_usage_id())));
         $result .= html_writer::tag('div', $question->format_questiontext($qa),
                 array('class' => 'qtext'));
 
@@ -120,6 +152,10 @@ abstract class qtype_turtipskupon_renderer_base extends qtype_with_combined_feed
         }
         $result .= html_writer::end_tag('div'); // Answer.
 
+        $questionimage = html_writer::empty_tag('img', array(
+            'src' => $this->get_questionimage($question->id, $question->contextid, $qa->get_slot(), $qa->get_usage_id())));
+        $result .= html_writer::div($questionimage, 'questionimage');
+
         $result .= html_writer::end_tag('div'); // Ablock.
 
         if ($qa->get_state() == question_state::$invalid) {
@@ -128,58 +164,19 @@ abstract class qtype_turtipskupon_renderer_base extends qtype_with_combined_feed
                     array('class' => 'validationerror'));
         }
 
+        $this->page->requires->js_init_call('M.qtype_turtipskupon.init',
+                array('#q' . $qa->get_slot()), false, array(
+                    'name'     => 'qtype_turtipskupon',
+                    'fullpath' => '/question/type/turtipskupon/module.js',
+                    'requires' => array('base', 'node', 'event', 'overlay'),
+                ));
+
         return $result;
-    }
-
-    protected function number_html($qnum) {
-        return $qnum . '. ';
-    }
-
-    /**
-     * @param int $num The number, starting at 0.
-     * @param string $style The style to render the number in. One of the
-     * options returned by {@link qtype_turtipskupon:;get_numbering_styles()}.
-     * @return string the number $num in the requested style.
-     */
-    protected function number_in_style($num, $style) {
-        switch($style) {
-            case 'abc':
-                $number = chr(ord('a') + $num);
-                break;
-            case 'ABCD':
-                $number = chr(ord('A') + $num);
-                break;
-            case '123':
-                $number = $num + 1;
-                break;
-            case 'iii':
-                $number = question_utils::int_to_roman($num + 1);
-                break;
-            case 'IIII':
-                $number = strtoupper(question_utils::int_to_roman($num + 1));
-                break;
-            case 'none':
-                return '';
-            default:
-                return 'ERR';
-        }
-        return $this->number_html($number);
-    }
-
-    public function specific_feedback(question_attempt $qa) {
-        return $this->combined_feedback($qa);
     }
 }
 
-
-/**
- * Subclass for generating the bits of output specific to multiple choice
- * single questions.
- *
- * @copyright  2009 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 class qtype_turtipskupon_single_renderer extends qtype_turtipskupon_renderer_base {
+
     protected function get_input_type() {
         return 'radio';
     }
@@ -203,83 +200,31 @@ class qtype_turtipskupon_single_renderer extends qtype_turtipskupon_renderer_bas
     protected function prompt() {
         return get_string('selectone', 'qtype_turtipskupon');
     }
-
-    public function correct_response(question_attempt $qa) {
-        $question = $qa->get_question();
-
-        foreach ($question->answers as $ansid => $ans) {
-            if (question_state::graded_state_for_fraction($ans->fraction) ==
-                    question_state::$gradedright) {
-                return get_string('correctansweris', 'qtype_turtipskupon',
-                        $question->make_html_inline($question->format_text($ans->answer, $ans->answerformat,
-                                $qa, 'question', 'answer', $ansid)));
-            }
-        }
-
-        return '';
-    }
 }
 
-/**
- * Subclass for generating the bits of output specific to multiple choice
- * multi=select questions.
- *
- * @copyright  2009 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 class qtype_turtipskupon_multi_renderer extends qtype_turtipskupon_renderer_base {
+
     protected function get_input_type() {
         return 'checkbox';
     }
 
     protected function get_input_name(question_attempt $qa, $value) {
-        return $qa->get_qt_field_name('choice' . $value);
+        return $qa->get_qt_field_name('answer');
     }
 
     protected function get_input_value($value) {
-        return 1;
+        return $value;
     }
 
     protected function get_input_id(question_attempt $qa, $value) {
-        return $this->get_input_name($qa, $value);
+        return $qa->get_qt_field_name('answer' . $value);
     }
 
     protected function is_right(question_answer $ans) {
-        if ($ans->fraction > 0) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return $ans->fraction;
     }
 
     protected function prompt() {
-        return get_string('selectmulti', 'qtype_turtipskupon');
-    }
-
-    public function correct_response(question_attempt $qa) {
-        $question = $qa->get_question();
-
-        $right = array();
-        foreach ($question->answers as $ansid => $ans) {
-            if ($ans->fraction > 0) {
-                $right[] = $question->make_html_inline($question->format_text($ans->answer, $ans->answerformat,
-                        $qa, 'question', 'answer', $ansid));
-            }
-        }
-
-        if (!empty($right)) {
-                return get_string('correctansweris', 'qtype_turtipskupon',
-                        implode(', ', $right));
-        }
-        return '';
-    }
-
-    protected function num_parts_correct(question_attempt $qa) {
-        if ($qa->get_question()->get_num_selected_choices($qa->get_last_qt_data()) >
-                $qa->get_question()->get_num_correct_choices()) {
-            return get_string('toomanyselected', 'qtype_turtipskupon');
-        }
-
-        return parent::num_parts_correct($qa);
+        return get_string('selectmultiple', 'qtype_turtipskupon');
     }
 }

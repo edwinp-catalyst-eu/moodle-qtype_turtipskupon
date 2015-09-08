@@ -1,0 +1,52 @@
+div.turtipskupon div.content div.formulation:before,
+div.turtipskupon div.content div.formulation:after {
+    content: "";
+    display: table;
+    line-height: 0;
+}
+
+div.turtipskupon div.content div.formulation:after {
+    clear: both;
+}
+
+div.turtipskupon div.content div.formulation:before,
+div.turtipskupon div.content div.formulation:after {
+    content: "";
+    display: table;
+    line-height: 0;
+}
+
+div.turtipskupon div.content div.formulation div.ablock div.prompt {
+    min-height: 30px;
+}
+
+div.turtipskupon div.content div.formulation div.ablock div.answer {
+    float: left;
+    width: 50%;
+}
+
+div.turtipskupon div.content div.formulation div.ablock div.questionimage {
+    float: right;
+    width: 50%;
+}
+
+div.turtipskupon div.content div.formulation div.ablock div.answer div.r0,
+div.turtipskupon div.content div.formulation div.ablock div.answer div.r1 {
+    min-height: 30px;
+}
+
+div.turtipskupon div.content div.formulation div.ablock div.answer div.r0 label,
+div.turtipskupon div.content div.formulation div.ablock div.answer div.r1 label {
+    display: inline-block;
+    width: 30%;
+}
+
+div.turtipskupon div.content div.formulation div.audioplay {
+    background-image: url('/question/type/turtipskupon/pix/icon_play.png');
+    background-position: left top;
+    cursor: pointer;
+    height: 20px;
+    width: 20px;
+    margin-top: 2px;
+    float: left;
+}

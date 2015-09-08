@@ -1,28 +1,40 @@
-<?php  //$Id: upgrade.php,v 1.1 2007/09/11 09:37:13 thepurpleblob Exp $
+<?php
 
-// This file keeps track of upgrades to 
-// the multichoice qtype plugin
-//
-// Sometimes, changes between versions involve
-// alterations to database structures and other
-// major things that may break installations.
-//
-// The upgrade function in this file will attempt
-// to perform all the necessary actions to upgrade
-// your older installtion to the current version.
-//
-// If there's something it cannot do itself, it
-// will tell you what you need to do.
-//
-// The commands in here will all be database-neutral,
-// using the functions defined in lib/ddllib.php
+function xmldb_qtype_turtipskupon_upgrade($oldversion) {
+    global $DB;
 
-function xmldb_qtype_turtipskupon_upgrade($oldversion=0) {
+    $dbman = $DB->get_manager();
 
-    global $CFG, $THEME, $db;
+    if ($oldversion < 2015081100) {
 
-    $result = true;
-    return $result;
+        $table = new xmldb_table('question_turtipskupon');
+        $field = new xmldb_field('questionimage', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'question');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2015081100, 'qtype', 'turtipskupon');
+    }
+
+    if ($oldversion < 2015082700) {
+
+        $table = new xmldb_table('question_turtipskupon');
+
+        $field = new xmldb_field('questionimage', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        $field = new xmldb_field('questionsound', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2015082700, 'qtype', 'turtipskupon');
+    }
+
+    return true;
 }
-
-?>
