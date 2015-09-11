@@ -55,11 +55,11 @@ $string['overallpartiallycorrectfeedback'] = 'Feedback for any partially correct
 $string['partiallycorrectfeedback'] = 'For any partially correct response';
 $string['pleaseselectananswer'] = 'Please select an answer.';
 $string['pleaseselectatleastoneanswer'] = 'Please select at least one answer.';
-$string['pluginname'] = 'TUR Multiple choice';
-$string['pluginname_help'] = 'In response to a question (that may include a image) the respondent chooses from multiple answers. There are two types of TUR Multiple choice questions - one answer and multiple answer.';
+$string['pluginname'] = 'TUR Tipskupon';
+$string['pluginname_help'] = 'In response to a question (that may include a image) the respondent chooses from multiple answers. There are two types of TUR Tipskupon questions - one answer and multiple answer.';
 $string['pluginname_link'] = 'question/type/turtipskupon';
-$string['pluginnameadding'] = 'Adding a TUR Multiple choice question';
-$string['pluginnameediting'] = 'Editing a TUR Multiple choice question';
+$string['pluginnameadding'] = 'Adding a TUR Tipskupon question';
+$string['pluginnameediting'] = 'Editing a TUR Tipskupon question';
 $string['pluginnamesummary'] = 'Allows the selection of a single or multiple responses from a pre-defined list.';
 
 $string['q_easy1'] = 'Sværhedsgrad 1';
