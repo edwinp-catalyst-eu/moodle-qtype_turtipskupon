@@ -122,8 +122,8 @@ function xmldb_qtype_turtipskupon_upgrade($oldversion) {
     // Moodle v2.2.0 release upgrade line
     // Put any upgrade step following this
 
-    // Migrate assets
-    if ($oldversion < 2013010101) {
+    // Migrate question sounds (answer sounds are dealt with in turmultiplechoice upgrade)
+    if ($oldversion < 2011011201) {
 
         $audiofolder = $CFG->olddataroot . '/' . $CFG->tursound . '/audio/';
         $fs = get_file_storage();
@@ -133,11 +133,9 @@ function xmldb_qtype_turtipskupon_upgrade($oldversion) {
             'filepath' => '/'
         );
 
-        // Question sounds first, then answer sounds
-        // Just do the question sounds for this question type
-        $sql = "SELECT q.id, qtm.questionsound
+        $sql = "SELECT q.id, qtt.questionsound
                   FROM {question} q
-                  JOIN {question_turtipskupon} qtm ON qtm.question = q.id
+                  JOIN {question_turtipskupon} qtt ON qtt.question = q.id
                  WHERE q.qtype = ?";
         $params = array('turtipskupon');
         $questions = $DB->get_records_sql($sql, $params);
@@ -156,63 +154,8 @@ function xmldb_qtype_turtipskupon_upgrade($oldversion) {
             }
         }
 
-        // Question sounds done, answer sounds next.
-        // Do answer sounds for question types 'turprove' and 'turtipskupon' also
-        // as the question_answers.answersound and question_answers.feedbacksound
-        // fields are dropped now also
-        $sql = "SELECT qa.id, qa.answersound, qa.feedbacksound
-                  FROM {question_answers} qa
-                  JOIN {question} q ON q.id = qa.question
-                 WHERE q.qtype = ?
-                    OR q.qtype = ?
-                    OR q.qtype = ?";
-        $params = array('turtipskupon', 'turprove', 'turtipskupon');
-        $answers = $DB->get_records_sql($sql, $params);
-
-        foreach ($answers as $answer) {
-
-            $file_record['itemid'] = $answer->id;
-
-            $filename = substr($answer->answersound, 6);
-            if (file_exists($audiofolder . $filename)) {
-                $file_record['filearea'] = 'answersound';
-                $file_record['filename'] = $filename;
-                $file_record['timecreated'] = time();
-                $file_record['timemodified'] = time();
-                $fs->create_file_from_pathname($file_record, $audiofolder . $filename);
-            }
-
-            $filename = substr($answer->feedbacksound, 6);
-            if (file_exists($audiofolder . $filename)) {
-                $file_record['filearea'] = 'feedbacksound';
-                $file_record['filename'] = $filename;
-                $file_record['timecreated'] = time();
-                $file_record['timemodified'] = time();
-                $fs->create_file_from_pathname($file_record, $audiofolder . $filename);
-            }
-        }
-
-        // Define table question_answers.
-        $table = new xmldb_table('question_answers');
-
-        // Define field answersound to be dropped from question_answers.
-        $field = new xmldb_field('answersound');
-
-        // Conditionally launch drop field answersound.
-        if ($dbman->field_exists($table, $field)) {
-            $dbman->drop_field($table, $field);
-        }
-
-        // Define field feedbacksound to be dropped from question_answers.
-        $field = new xmldb_field('feedbacksound');
-
-        // Conditionally launch drop field feedbacksound.
-        if ($dbman->field_exists($table, $field)) {
-            $dbman->drop_field($table, $field);
-        }
-
-        // turtipskupon savepoint reached
-        upgrade_plugin_savepoint(true, 2013010101, 'qtype', 'turtipskupon');
+        // turprove savepoint reached
+        upgrade_plugin_savepoint(true, 2011011201, 'qtype', 'turtipskupon');
     }
 
     return true;

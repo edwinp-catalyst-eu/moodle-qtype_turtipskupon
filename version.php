@@ -24,6 +24,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'qtype_turtipskupon';
-$plugin->version   = 2013010101;
+$plugin->version   = 2011011201;
 $plugin->requires  = 2011033010;
 $plugin->maturity  = MATURITY_BETA;
