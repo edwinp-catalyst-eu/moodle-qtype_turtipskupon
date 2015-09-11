@@ -136,7 +136,8 @@ function xmldb_qtype_turtipskupon_upgrade($oldversion) {
         $sql = "SELECT q.id, qtt.questionsound
                   FROM {question} q
                   JOIN {question_turtipskupon} qtt ON qtt.question = q.id
-                 WHERE q.qtype = ?";
+                 WHERE q.qtype = ?
+                   AND qtt.questionsound <> ''";
         $params = array('turtipskupon');
         $questions = $DB->get_records_sql($sql, $params);
 
