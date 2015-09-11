@@ -1,0 +1,18 @@
+.que.turtipskupon .answer .specificfeedback {
+    padding: 0 0.7em;
+    background: #FFF3BF;
+}
+.que.turtipskupon .answer .specificfeedback * {
+    display: inline;
+    background: #FFF3BF;
+}
+.que.turtipskupon .answer .specificfeedback script {
+    display: none;
+}
+.que.turtipskupon .answer div.r0,
+.que.turtipskupon .answer div.r1 {
+    padding: 0.3em;
+}
+.que.turtipskupon .feedback .rightanswer * {
+    display: inline;
+}

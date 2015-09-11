@@ -1,334 +1,319 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Defines the editing form for the turtipskupon question type.
+ * Defines the editing form for the multiple choice question type.
  *
- * @package questions
+ * @package    qtype
+ * @subpackage turtipskupon
  */
-define('LOCAL_NUMANS_START',10); 
-class question_edit_turtipskupon_form extends question_edit_form {
-     /*
-      * 2369:     function view_array($array_in)
-      * 2397:     function print_array($array_in)
-      * 2412:     function debug($var="",$brOrHeader=0)
+
+
+defined('MOODLE_INTERNAL') || die();
+
+
+/**
+ * Multiple choice editing form definition.
+ */
+class qtype_turtipskupon_edit_form extends question_edit_form {
+    /**
+     * Add question-type specific form fields.
+     *
+     * @param object $mform the form being built.
      */
-    function definition_inner(&$mform) {
-      //print('definition_inner' . '<br />');
-      global $COURSE, $CFG, $QTYPES;
-		  
-      $mform->removeElement('questiontext');
-      $mform->removeElement('questiontextformat');
-      /* Apply question difficulties*/
-      $question_difficulties = array();
-      $question_difficulties[0] = get_string('q_easy1', 'qtype_turprove');
-      $question_difficulties[1] = get_string('q_easy2', 'qtype_turprove');
-      $question_difficulties[2] = get_string('q_easy3', 'qtype_turprove');
-      $question_difficulties[3] = get_string('q_medium1', 'qtype_turprove');
-      $question_difficulties[4] = get_string('q_medium2', 'qtype_turprove');
-      $question_difficulties[5] = get_string('q_medium3', 'qtype_turprove');
-      $question_difficulties[6] = get_string('q_hard1', 'qtype_turprove');
-      $question_difficulties[7] = get_string('q_hard2', 'qtype_turprove');
-      $question_difficulties[8] = get_string('q_hard3', 'qtype_turprove');
-      $mform->addElement('select', 'qdifficulty', get_string('qdifficulty', 'qtype_turprove'), $question_difficulties);
-      /**/
-      $mform->addElement('hidden', 'questiontext', get_string('questiontext', 'quiz'),array('rows' => 15, 'course' => $this->coursefilesid));
-      $mform->addElement('hidden', 'questiontextformat', get_string('format'));
-      /*
-        $mform->addElement('htmleditor', 'questiontext', get_string('questiontext', 'quiz'),array('rows' => 15, 'course' => $this->coursefilesid));
-        $mform->setType('questiontext', PARAM_RAW);
-        $mform->setHelpButton('questiontext', array(array('questiontext', get_string('questiontext', 'quiz'), 'quiz'), 'richtext'), false, 'editorhelpbutton');
-        $mform->addElement('format', 'questiontextformat', get_string('format'));
-      */
-      //  $mform->addElement('advcheckbox', 'autoplay', get_string('autoplay', 'qtype_turtipskupon'), null, null, array(0,1));
-	    $mform->addElement('hidden', 'autoplay', get_string('autoplay', 'qtype_turtipskupon'), null, null, array(0,1));
-	    
-      $mform->removeElement('defaultgrade'); // fjerne 'standardkarakter for sp�rgsm�l' som tidligere er blevet tilf�jet
-		  $mform->addElement('hidden', 'defaultgrade', get_string('defaultgrade', 'quiz'), array('size' => 3)); // og s� tilf�jer vi det igen, men denne gang som skjult felt.
-		  $mform->setType('defaultgrade', PARAM_INT);
-		  $mform->setDefault('defaultgrade', 1);
+    protected function definition_inner($mform) {
 
-  		$mform->removeElement('penalty');
-  		$mform->addElement('hidden', 'penalty', get_string('penaltyfactor', 'quiz'), array('size' => 3));
-  		$mform->setType('penalty', PARAM_NUMBER);
-  		$mform->addRule('penalty', null, 'required', null, 'client');
-  		$mform->setDefault('penalty', 0);
-  		$mform->removeElement('generalfeedback');
-      $mform->removeElement('image');
+        $mform->removeElement('defaultmark');
+        $mform->addElement('hidden', 'defaultmark', '1');
+        $mform->removeElement('generalfeedback');
 
-/*
-      if(isset($CFG->turimage)) {
-        $mform->addElement('choosecoursefile', 'image', get_string('imagedisplay', 'quiz'), array('courseid'=>$CFG->turimage,'height'=>500, 'width'=>750, 'options'=>'none'));
-      } else {
-        make_upload_directory($this->coursefilesid);    // Just in case
-        $coursefiles = get_directory_list("$CFG->dataroot/$this->coursefilesid", $CFG->moddata);
-        foreach ($coursefiles as $filename) {
-          if (mimeinfo("icon", $filename) == "image.gif") {
-            $images["$filename"] = $filename;
-          }
-        }
-        if (empty($images)) {
-            $mform->addElement('static', 'image', get_string('imagedisplay', 'quiz'), get_string('noimagesyet'));
+        $mform->addElement('advcheckbox', 'autoplay',
+                get_string('autoplay', 'qtype_turtipskupon'), null, null, array(0, 1));
+        $mform->addHelpButton('autoplay', 'autoplay', 'qtype_turtipskupon');
+        $mform->setDefault('autoplay', 0);
+
+        $menu = array(
+            get_string('answersingleno', 'qtype_turtipskupon'),
+            get_string('answersingleyes', 'qtype_turtipskupon'),
+        );
+        $mform->addElement('select', 'single',
+                get_string('answerhowmany', 'qtype_turtipskupon'), $menu);
+        $mform->setDefault('single', 0);
+
+        // 'Image to display' filemanager
+        $mform->addElement('filemanager', 'questionimage', 'Image to display', null,
+            array('maxfiles' => 1)); // TODO: Use lang string
+
+        // 'Choose soundfile for question' filemanager
+        $mform->addElement('filemanager', 'questionsound', 'Choose soundfile for question', null,
+            array('maxfiles' => 1, 'accepted_types' => array('.mp3'))); // TODO: Use lang string
+
+        $question_difficulties = array();
+        $question_difficulties[0] = get_string('q_easy1', 'qtype_turtipskupon');
+        $question_difficulties[1] = get_string('q_easy2', 'qtype_turtipskupon');
+        $question_difficulties[2] = get_string('q_easy3', 'qtype_turtipskupon');
+        $question_difficulties[3] = get_string('q_medium1', 'qtype_turtipskupon');
+        $question_difficulties[4] = get_string('q_medium2', 'qtype_turtipskupon');
+        $question_difficulties[5] = get_string('q_medium3', 'qtype_turtipskupon');
+        $question_difficulties[6] = get_string('q_hard1', 'qtype_turtipskupon');
+        $question_difficulties[7] = get_string('q_hard2', 'qtype_turtipskupon');
+        $question_difficulties[8] = get_string('q_hard3', 'qtype_turtipskupon');
+        $mform->addElement('select', 'qdifficulty',
+                get_string('qdifficulty', 'qtype_turtipskupon'), $question_difficulties);
+        $mform->setDefault('qdifficulty', 0);
+
+        $mform->addElement('hidden', 'shuffleanswers', 1);
+
+        $this->add_per_answer_fields($mform, get_string('choiceno', 'qtype_turtipskupon', '{no}'),
+                question_bank::fraction_options_full(), max(4, QUESTION_NUMANS_START), 4);
+
+        $this->add_combined_feedback_fields(true);
+        $mform->disabledIf('shownumcorrect', 'single', 'eq', 1);
+    }
+
+    protected function get_per_answer_fields($mform, $label, $gradeoptions,
+            &$repeatedoptions, &$answersoption) {
+
+        $filemanageroptions = $this->editoroptions;
+        $filemanageroptions['maxfiles'] = 1;
+        $filemanageroptions['accepted_types'] = array('.mp3');
+        $filemanageroptions['return_types'] = FILE_INTERNAL | FILE_EXTERNAL;
+        $repeated = array();
+        $repeated[] = $mform->createElement('header', 'answerhdr', $label);
+        $repeated[] = $mform->createElement('editor', 'answer',
+                get_string('answer', 'question'), array('rows' => 1), $this->editoroptions);
+        $repeated[] = $mform->createElement('filemanager', 'answersound',
+            'Choose soundfile for answer', null, $filemanageroptions); // TODO: use lang string
+        $repeated[] = $mform->createElement('select', 'fraction',
+                get_string('grade'), $gradeoptions);
+        $repeated[] = $mform->createElement('editor', 'feedback',
+                get_string('feedback', 'question'), array('rows' => 1), $this->editoroptions);
+        $repeated[] = $mform->createElement('filemanager', 'feedbacksound',
+            'Choose soundfile for answerfeedback', null, $filemanageroptions); // TODO: use lang string
+        $repeatedoptions['answer']['type'] = PARAM_RAW;
+        $repeatedoptions['fraction']['default'] = 0;
+        $answersoption = 'answers';
+        return $repeated;
+    }
+
+    /**
+     * Add a set of form fields, obtained from get_per_answer_fields, to the form,
+     * one for each existing answer, with some blanks for some new ones.
+     * @param object $mform the form being built.
+     * @param $label the label to use for each option.
+     * @param $gradeoptions the possible grades for each answer.
+     * @param $minoptions the minimum number of answer blanks to display.
+     *      Default QUESTION_NUMANS_START.
+     * @param $addoptions the number of answer blanks to add. Default QUESTION_NUMANS_ADD.
+     */
+    protected function add_per_answer_fields(&$mform, $label, $gradeoptions,
+            $minoptions = QUESTION_NUMANS_START, $addoptions = QUESTION_NUMANS_ADD) {
+
+        $answersoption = '';
+        $repeatedoptions = array();
+        $repeated = $this->get_per_answer_fields($mform, $label, $gradeoptions, $repeatedoptions, $answersoption);
+
+        if (isset($this->question->options)) {
+            $repeatsatstart = count($this->question->options->$answersoption);
         } else {
-            $mform->addElement('select', 'image', get_string('imagedisplay', 'quiz'), array_merge(array(''=>get_string('none')), $images));
+            $repeatsatstart = $minoptions;
         }
-      }
-*/
-      //$menu = array(get_string('answersingleno', 'qtype_turtipskupon'), get_string('answersingleyes', 'qtype_turtipskupon'));
-      //$mform->addElement('select', 'single', get_string('answerhowmany', 'qtype_turtipskupon'), $menu);
-      $mform->addElement( 'hidden', 'single', 1 );
-      $mform->setDefault('single', 0);
-      $mform->addElement( 'hidden', 'shuffleanswers', 1 );
-      $mform->addElement( 'hidden', 'answernumbering', 1 );
-      /*
-      $numberingoptions = $QTYPES[$this->qtype()]->get_numbering_styles();
-      $menu = array();
-      foreach ($numberingoptions as $numberingoption) {
-          $menu[$numberingoption] = get_string('answernumbering' . $numberingoption, 'qtype_multichoice');
-      }
-      $mform->addElement('select', 'answernumbering', get_string('answernumbering', 'qtype_multichoice'), $menu);
-      */
-      $mform->setDefault('answernumbering', 'none');
-      /*
-      if(isset($CFG->tursound)) {
-        $mform->addElement('choosecoursefile', 'questionsound', get_string('questionsound', 'qtype_turtipskupon'), array('courseid'=>$CFG->tursound,'height'=>500, 'width'=>750, 'options'=>'none'));
-      } else {
-        $mform->addElement('choosecoursefile', 'questionsound', get_string('questionsound', 'qtype_turtipskupon'));
-      }
-      */
-      $mform->addElement('hidden', 'questionsound', '');
-      $creategrades = get_grade_options();
-      
-      //t3lib_div::debug($creategrades);
-      
-      $gradeoptions = $creategrades->gradeoptionsfull;
-      $repeated = array();
-      $repeated[] =& $mform->createElement('header', 'choicehdr', get_string('choiceno', 'qtype_turtipskupon', '{no}'));
-      $repeated[] =& $mform->createElement('htmleditor', 'answer', get_string('questionanswer', 'qtype_turtipskupon'));
-      // Array til moodle-selectbox [value]-> 'label'
 
-      $turgradeoptions = array();
-      $turgradeoptions['0.1'] = '10%'; 
+        $this->repeat_elements($repeated, $repeatsatstart, $repeatedoptions,
+                'noanswers', 'addanswers', $addoptions,
+                $this->get_more_choices_string(), false);
+    }
 
-      //t3lib_div::print_array($turgradeoptions, '$gradeoptions');
-      //$repeated[] =& $mform->createElement('select', 'fraction', get_string('grade'), $turgradeoptions);
-      
-      //  $repeated[] =& $mform->createElement('select', 'fraction', get_string('grade'), $gradeoptions);
-      $repeated[] =& $mform->createElement('hidden', 'fraction', '0.1');
-      $repeated[] =& $mform->createElement('select', 'tur_answer_truefalse', get_string('correctanswer', 'qtype_truefalse'), array(0 => 'Nej', 1 => 'Ja'));
-      //  $repeated[] =& $mform->createElement('htmleditor', 'feedback', get_string('feedback', 'qtype_turtipskupon'));
-      $repeated[] =& $mform->createElement('htmleditor', 'feedback', get_string('feedback', 'qtype_turtipskupon'));
+    protected function data_preprocessing($question) {
+        $question = parent::data_preprocessing($question);
+        $question = $this->data_preprocessing_answers($question, true);
+        $question = $this->data_preprocessing_combined_feedback($question, true);
+        $question = $this->data_preprocessing_hints($question, true, true);
 
+        if (!empty($question->options)) {
+            $question->single = $question->options->single;
+            $question->shuffleanswers = $question->options->shuffleanswers;
+            $question->qdifficulty = $question->options->qdifficulty;
+        }
 
-/* MPL */
-        if(isset($CFG->tursound)) {
-          $repeated[] =& $mform->createElement('choosecoursefile', 'answersound', get_string('answersound', 'qtype_turtipskupon'), array('courseid'=>$CFG->tursound,'height'=>500, 'width'=>750, 'options'=>'none'));
+        if (isset($question->id)) {
+            // Prepare the questionimage filemanager to display files in draft area.
+            $draftitemid = file_get_submitted_draft_itemid('questionimage');
+            file_prepare_draft_area($draftitemid, 1,
+                    'question', 'questionimage', $question->id);
+            $question->questionimage = $draftitemid;
+
+            // Prepare the questionsound filemanager to display files in draft area.
+            $draftitemid = file_get_submitted_draft_itemid('questionsound');
+            file_prepare_draft_area($draftitemid, 1,
+                    'question', 'questionsound', $question->id);
+            $question->questionsound = $draftitemid;
+        }
+
+        return $question;
+    }
+
+    protected function data_preprocessing_answers($question, $withanswerfiles = false) {
+
+        parent::data_preprocessing_answers($question, $withanswerfiles);
+
+        if (isset($question->options->answers) && $question->options->answers) {
+            $key = 0;
+            foreach ($question->options->answers as $answer) {
+
+                // Prepare the answersound filemanager to display files in draft area.
+                $draftitemid = file_get_submitted_draft_itemid('answersound['.$key.']');
+                file_prepare_draft_area($draftitemid, 1,
+                        'question', 'answersound', $answer->id);
+                $question->answersound[$key] = $draftitemid;
+
+                // Prepare the feedbacksound filemanager to display files in draft area.
+                $draftitemid = file_get_submitted_draft_itemid('feedbacksound['.$key.']');
+                file_prepare_draft_area($draftitemid, 1,
+                        'question', 'feedbacksound', $answer->id);
+                $question->feedbacksound[$key] = $draftitemid;
+
+                $key++;
+            }
+        }
+
+        return $question;
+    }
+
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
+        $answers = $data['answer'];
+        $answercount = 0;
+
+        $totalfraction = 0;
+        $maxfraction = -1;
+
+        foreach ($answers as $key => $answer) {
+            //check no of choices
+            $trimmedanswer = trim($answer['text']);
+            $fraction = (float) $data['fraction'][$key];
+            if ($trimmedanswer === '' && empty($fraction)) {
+                continue;
+            }
+            if ($trimmedanswer === '') {
+                $errors['fraction['.$key.']'] = get_string('errgradesetanswerblank', 'qtype_turtipskupon');
+            }
+
+            $answercount++;
+
+            //check grades
+            if ($data['fraction'][$key] > 0) {
+                $totalfraction += $data['fraction'][$key];
+            }
+            if ($data['fraction'][$key] > $maxfraction) {
+                $maxfraction = $data['fraction'][$key];
+            }
+        }
+
+        if ($answercount == 0) {
+            $errors['answer[0]'] = get_string('notenoughanswers', 'qtype_turtipskupon', 2);
+            $errors['answer[1]'] = get_string('notenoughanswers', 'qtype_turtipskupon', 2);
+        } else if ($answercount == 1) {
+            $errors['answer[1]'] = get_string('notenoughanswers', 'qtype_turtipskupon', 2);
+
+        }
+
+        /// Perform sanity checks on fractional grades
+        if ($data['single']) {
+            if ($maxfraction != 1) {
+                $errors['fraction[0]'] = get_string('errfractionsnomax', 'qtype_turtipskupon',
+                        $maxfraction * 100);
+            }
         } else {
-          $repeated[] =& $mform->createElement('choosecoursefile', 'answersound', get_string('answersound', 'qtype_turtipskupon'));
+            $totalfraction = round($totalfraction, 2);
+            if ($totalfraction != 1) {
+                $errors['fraction[0]'] = get_string('errfractionsaddwrong', 'qtype_turtipskupon',
+                        $totalfraction * 100);
+            }
         }
-/* MPL */ 
+        return $errors;
+    }
 
-      if(isset($CFG->tursound)) {
-        $repeated[] =& $mform->createElement('choosecoursefile', 'feedbacksound', get_string('feedbacksound', 'qtype_turtipskupon'), array('courseid'=>$CFG->tursound,'height'=>500, 'width'=>750, 'options'=>'none'));
-      } else {
-        $repeated[] =& $mform->createElement('choosecoursefile', 'feedbacksound', get_string('feedbacksound', 'qtype_turtipskupon'));        
-      }
-      if (isset($this->question->options)){
-          $countanswers = count($this->question->options->answers);
-      } else {
-          $countanswers = 0;
-      }
-      $repeatsatstart = LOCAL_NUMANS_START;
-      //$repeatsatstart = (LOCAL_NUMANS_START > ($countanswers + QUESTION_NUMANS_ADD)) ? LOCAL_NUMANS_START : ($countanswers + QUESTION_NUMANS_ADD);
-      $repeatedoptions = array();
-//      $repeatedoptions['fraction']['default'] = -1;
-      $mform->setType('questionsound', PARAM_RAW);
-      $mform->setType('autoplay', PARAM_INT);
-      $mform->setType('answersound', PARAM_RAW);
-      $mform->setType('feedbacksound', PARAM_RAW);
-      $this->repeat_elements($repeated, $repeatsatstart, $repeatedoptions, 'noanswers', 'addanswers', QUESTION_NUMANS_ADD, get_string('addmorechoiceblanks', 'qtype_turtipskupon'));
-      $mform->removeElement('addanswers');
-      //  $mform->setDefault('fraction', 0,1);
+    public function qtype() {
+        return 'turtipskupon';
+    }
+
+    /**
+     * Language string to use for 'Add {no} more {whatever we call answers}'.
+     */
+    protected function get_more_choices_string() {
+        return get_string('addmorechoiceblanks', 'qtype_turtipskupon');
+    }
+
+    function repeat_elements($elementobjs, $repeats, $options, $repeathiddenname,
+            $addfieldsname, $addfieldsno=5, $addstring=null, $addbuttoninside=false){
+
+        $addstring = str_ireplace('{no}', $addfieldsno, $addstring);
+        $repeats = optional_param($repeathiddenname, $repeats, PARAM_INT);
+        $addfields = optional_param($addfieldsname, '', PARAM_TEXT);
+        if (!empty($addfields)){
+            $repeats += $addfieldsno;
+        }
+        $mform =& $this->_form;
+        $mform->registerNoSubmitButton($addfieldsname);
+        $mform->addElement('hidden', $repeathiddenname, $repeats);
+        $mform->setType($repeathiddenname, PARAM_INT);
+        //value not to be overridden by submitted value
+        $mform->setConstants(array($repeathiddenname=>$repeats));
+        $namecloned = array();
+        for ($i = 0; $i < $repeats; $i++) {
+            foreach ($elementobjs as $elementobj){
+                $elementclone = fullclone($elementobj);
+                $this->repeat_elements_fix_clone($i, $elementclone, $namecloned);
+
+                if ($elementclone instanceof HTML_QuickForm_group && !$elementclone->_appendName) {
+                    foreach ($elementclone->getElements() as $el) {
+                        $this->repeat_elements_fix_clone($i, $el, $namecloned);
+                    }
+                    $elementclone->setLabel(str_replace('{no}', $i + 1, $elementclone->getLabel()));
+                }
+
+                $mform->addElement($elementclone);
+            }
+        }
+        for ($i=0; $i<$repeats; $i++) {
+            foreach ($options as $elementname => $elementoptions){
+                $pos=strpos($elementname, '[');
+                if ($pos!==FALSE){
+                    $realelementname = substr($elementname, 0, $pos)."[$i]";
+                    $realelementname .= substr($elementname, $pos);
+                }else {
+                    $realelementname = $elementname."[$i]";
+                }
+                foreach ($elementoptions as  $option => $params){
+                    switch ($option){
+                        case 'default' :
+                            $mform->setDefault($realelementname, $params);
+                            break;
+                        case 'type' :
+                            //Type should be set only once
+                            if (!isset($mform->_types[$elementname])) {
+                                $mform->setType($elementname, $params);
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+        return $repeats;
+    }
 }
-
-function tur_setcustomfraction ($numAnswers) {
-      $turfraction = 0;
-      /*
-          $grades = array(
-        1,
-        0.9,
-        0.8,
-        0.75,
-        0.70,
-        0.66666,
-        0.60,
-        0.50,
-        0.40,
-        0.33333,
-        0.30,
-        0.25,
-        0.20,
-        0.16666,
-        0.142857,
-        0.125,
-        0.11111,
-        0.10,
-        0.05,
-        0);
-      */
-      switch($numAnswers) {
-        case 1:
-        $turfraction = 1;
-        break;
-        case 2:
-        $turfraction = 0.5;
-        break;
-        case 3:
-        $turfraction = 0.33333;
-        break;
-        case 4:
-        $turfraction = 0.25;
-        break;
-        case 5:
-        $turfraction = 0.20;
-        break;
-        case 6:
-        $turfraction = 0.16666;
-        break;
-        case 10:
-        $turfraction = 0.1;
-        break;
-        default:
-        $turfraction = round((1/$numAnswers),5);
-        //print ($tempFrac . '    ' .$numAnswers . '-> Illegal number!');
-      }
-      return $turfraction;
-    }
-
-
-  function set_data($question) {
-      //print('set_data' . '<br />');
-      if (isset($question->options)){
-          $answers = $question->options->answers;
-          if (count($answers)) {
-              $key = 0;
-              foreach ($answers as $answer){
-                  $default_values['answer['.$key.']'] = $answer->answer;
-                  $default_values['answersound['.$key.']'] = $answer->answersound;
-                  //  $default_values['fraction['.$key.']'] = $answer->fraction;
-                  $default_values['fraction['.$key.']'] = $this->tur_setcustomfraction(count($answers));
-                  $default_values['tur_answer_truefalse['.$key.']'] = $answer->tur_answer_truefalse;
-                  $default_values['feedback['.$key.']'] = $answer->feedback;
-                  $default_values['feedbacksound['.$key.']'] = $answer->feedbacksound;
-                  $key++;
-              }
-          }
-          $default_values['single'] =  $question->options->single;
-          $default_values['shuffleanswers'] =  $question->options->shuffleanswers;
-          $default_values['qdifficulty'] =  $question->options->qdifficulty;
-  	      $default_values['autoplay'] =  $question->options->autoplay;
-          $default_values['correctfeedback'] =  $question->options->correctfeedback;
-          $default_values['partiallycorrectfeedback'] =  $question->options->partiallycorrectfeedback;
-          $default_values['incorrectfeedback'] =  $question->options->incorrectfeedback;
-          $default_values['questionsound'] =  $question->options->questionsound;
-          $question = (object)((array)$question + $default_values);
-      }
-      parent::set_data($question);
-  }
-  
-  function qtype() {
-      return 'turtipskupon';
-  }
-    
-  /*http://snippets.dzone.com/posts/show/2776*/
-  function file_extension($filename) {
-    $path_info = pathinfo($filename);
-    $allowed = $path_info['extension'];
-    if($allowed == 'mp3') {
-      return true;
-    }
-   return false;
-  }
-
-  function validation($data){
-    //  print('validation' . '<br />');
-    $errors = array();
-    $answers = $data['answer'];
-    $answercount = 0;
-    $numAnswers = 0;
-    $totalfraction = 0;
-    $maxfraction = -1;
-    $answersounds = array();
-    $feedbacksounds = array();
-    $answercount = 0;
-    $tur_num_true = 0;
-
-    //  t3lib_div::debug($answers);
-
-    foreach ($answers as $key => $answer){
-        $trimmedanswer = trim($answer);
-        if (!empty($trimmedanswer)){
-            $numAnswers++;
-        }
-    }
-    foreach ($answers as $key => $answer){
-      $trimmedanswer = trim($answer);
-      if (!empty($trimmedanswer)){
-        $answercount++;
-      }
-      if ($answer != '') {
-        if ($data['fraction'][$key] > 0) {
-          $data['fraction'][$key] = $this->tur_setcustomfraction($numAnswers);
-          $totalfraction += $data['fraction'][$key]; // l�gger alle fraktioner sammen
-        }
-        if ($data['fraction'][$key] > $maxfraction) {
-          $maxfraction = $data['fraction'][$key];
-        }
-      }
-      $answersounds[$key] = $data['answersound['.$key.']'];
-      $feedbacksounds[$key] = $data['feedbacksound['.$key.']'];
-    } //foreach
-    foreach ($answersounds as $key => $value) {
-      if($value !='' && !$this->file_extension($value)) {
-        $errors['answersound['.$key.']'] = get_string('mp3only', 'qtype_turtipskupon', 2);
-      }
-    }
-    /* Feedbacksound must be mp3 */
-    foreach ($feedbacksounds as $key => $value) {
-      if($value !='' && !$this->file_extension($value)) {
-        $errors['feedbacksound['.$key.']'] = get_string('mp3only', 'qtype_turtipskupon', 2);
-      }
-    }
-    
-    /* Questionsound must be mp3 */
-    if($data['questionsound'] <> '') {
-      if(!$this->file_extension($data['questionsound'])) {
-        $errors['questionsound'] = get_string('mp3only', 'qtype_turtipskupon', 2);
-      }
-    }
-    if ($answercount==0){
-        $errors['answer[0]'] = get_string('notenoughanswers', 'qtype_turtipskupon', 2);
-        $errors['answer[1]'] = get_string('notenoughanswers', 'qtype_turtipskupon', 2);
-    } elseif ($answercount==1){
-        $errors['answer[1]'] = get_string('notenoughanswers', 'qtype_turtipskupon', 2);
-    }
-    /// Perform sanity checks on fractional grades
-
-
-
-    if ($data['single']) {
-        if ($maxfraction != 1) {
-            $maxfraction = $maxfraction * 100;
-            $errors['fraction[0]'] = get_string('errfractionsnomax', 'qtype_turtipskupon', $maxfraction);
-        }
-    } else {
-        $totalfraction = round($totalfraction,2);
-        //  t3lib_div::debug($maxfraction, '$maxfraction');
-        //  t3lib_div::debug($totalfraction, '$totalfraction');
-        if ($totalfraction != 1) {
-            $totalfraction = $totalfraction * 100;
-		        $errors['fraction[0]'] = get_string('errfractionsaddwrong', 'qtype_turtipskupon', $totalfraction);
-        }
-    }
-   return $errors;
-  }
-}
-?>
