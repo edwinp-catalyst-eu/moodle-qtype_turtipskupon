@@ -144,17 +144,25 @@ abstract class qtype_turtipskupon_renderer_base extends qtype_with_combined_feed
 
         $questionsoundurl = $this->get_questionsound($question->id,
                 $question->contextid, $qa->get_slot(), $qa->get_usage_id());
+
+        // Create the 'source' element tag...
         $audiosource = html_writer::tag('source', '',
                 array('type' => 'audio/mpeg', 'src' => $questionsoundurl));
         $audiosource .= 'Your browser does not support the audio tag.'; // TODO: Lang string
+
+        // ... which goes inside of the audio tag.
         $audioelement = html_writer::tag('audio', $audiosource,
                 array('id' => 'audiodiv'));
-        $result .= $audioelement;
 
+        // Although in Turtipskupon question types we are not outputting this to the renderer,
+        // so we are commenting this out:
+        /*
+        $result .= $audioelement;
         $result .= html_writer::div('', 'audioplay',
                 array('data-src' => $questionsoundurl));
         $result .= html_writer::tag('div', $question->format_questiontext($qa),
                 array('class' => 'qtext'));
+         */
 
         $result .= html_writer::start_tag('div', array('class' => 'ablock'));
         $result .= html_writer::tag('div', $this->prompt(), array('class' => 'prompt'));
@@ -178,12 +186,20 @@ abstract class qtype_turtipskupon_renderer_base extends qtype_with_combined_feed
                     array('class' => 'validationerror'));
         }
 
-        $this->page->requires->js_init_call('M.qtype_turtipskupon.init',
-                array('#q' . $qa->get_slot()), false, array(
-                    'name'     => 'qtype_turtipskupon',
-                    'fullpath' => '/question/type/turtipskupon/module.js',
-                    'requires' => array('base', 'node', 'event', 'overlay'),
-                ));
+        $this->page->requires->js_init_call(
+                    'M.qtype_turtipskupon.init',
+                    array(
+                        '#q' . $qa->get_slot(),
+                        $options->readonly,
+                        0
+                    ),
+                    false,
+                    array(
+                        'name'     => 'qtype_turtipskupon',
+                        'fullpath' => '/question/type/turtipskupon/module.js',
+                        'requires' => array('base', 'node', 'event', 'overlay'),
+                    )
+                );
 
         return $result;
     }

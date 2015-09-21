@@ -4,6 +4,14 @@ defined('MOODLE_INTERNAL') || die();
 
 class qtype_turtipskupon extends question_type {
 
+    public function find_standard_scripts() {
+        global $PAGE;
+
+        $PAGE->requires->jquery();
+
+        parent::find_standard_scripts();
+    }
+
     public function get_question_options($question) {
         global $DB;
 
