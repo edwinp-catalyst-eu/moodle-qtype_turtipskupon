@@ -15,35 +15,40 @@ abstract class qtype_turtipskupon_renderer_base extends qtype_with_combined_feed
     protected function get_answersound(question_answer $ans, $contextid, $slot, $usageid) {
 
         $fs = get_file_storage();
-        $files = $fs->get_area_files($contextid, 'question', 'answersound', $ans->id);
-        $file = end($files);
-        $filename = $file->get_filename();
-
-        return moodle_url::make_file_url('/pluginfile.php',
-                "/$contextid/question/answersound/$usageid/$slot/$ans->id/$filename");
+        $files = $fs->get_area_files(1, 'question', 'answersound', $ans->id);
+        if ($file = end($files)) {
+            $filename = $file->get_filename();
+            if ($filename != '.') {
+                return moodle_url::make_file_url('/pluginfile.php',
+                        "/1/question/answersound/$usageid/$slot/$ans->id/$filename");
+            }
+        }
     }
 
     protected function get_questionimage($questionid, $contextid, $slot, $usageid) {
 
         $fs = get_file_storage();
-        $files = $fs->get_area_files($contextid, 'question', 'questionimage', $questionid);
-        $file = end($files);
-        $filename = $file->get_filename();
-
-        return moodle_url::make_file_url('/pluginfile.php',
-                "/$contextid/question/questionimage/$usageid/$slot/$questionid/$filename");
+        $files = $fs->get_area_files(1, 'question', 'questionimage', $questionid);
+        if ($file = end($files)) {
+            $filename = $file->get_filename();
+            if ($filename != '.') {
+                return moodle_url::make_file_url('/pluginfile.php',
+                        "/1/question/questionimage/$usageid/$slot/$questionid/$filename");
+            }
+        }
     }
-
 
     protected function get_questionsound($questionid, $contextid, $slot, $usageid) {
 
         $fs = get_file_storage();
-        $files = $fs->get_area_files($contextid, 'question', 'questionsound', $questionid);
-        $file = end($files);
-        $filename = $file->get_filename();
-
-        return moodle_url::make_file_url('/pluginfile.php',
-                "/$contextid/question/questionsound/$usageid/$slot/$questionid/$filename");
+        $files = $fs->get_area_files(1, 'question', 'questionsound', $questionid);
+        if ($file = end($files)) {
+            $filename = $file->get_filename();
+            if ($filename != '.') {
+                return moodle_url::make_file_url('/pluginfile.php',
+                        "/1/question/questionsound/$usageid/$slot/$questionid/$filename");
+            }
+        }
     }
 
     /**
