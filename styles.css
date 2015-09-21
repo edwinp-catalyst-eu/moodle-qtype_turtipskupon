@@ -22,7 +22,7 @@ div.turtipskupon div.content div.formulation div.ablock div.prompt {
 
 div.turtipskupon div.content div.formulation div.ablock div.answer {
     float: left;
-    width: 50%;
+    width: 100%;
 }
 
 div.turtipskupon div.content div.formulation div.ablock div.questionimage {
@@ -38,7 +38,14 @@ div.turtipskupon div.content div.formulation div.ablock div.answer div.r1 {
 div.turtipskupon div.content div.formulation div.ablock div.answer div.r0 label,
 div.turtipskupon div.content div.formulation div.ablock div.answer div.r1 label {
     display: inline-block;
-    width: 30%;
+    width: 90%;
+}
+
+div.turtipskupon div.content div.formulation div.ablock div.answer div.r0 input[type="checkbox"],
+div.turtipskupon div.content div.formulation div.ablock div.answer div.r1 input[type="checkbox"],
+div.turtipskupon div.content div.formulation div.ablock div.answer div.r0 input[type="radio"],
+div.turtipskupon div.content div.formulation div.ablock div.answer div.r1 input[type="radio"] {
+    float: right;
 }
 
 div.turtipskupon div.content div.formulation div.audioplay {
@@ -49,4 +56,11 @@ div.turtipskupon div.content div.formulation div.audioplay {
     width: 20px;
     margin-top: 2px;
     float: left;
+}
+
+div.turtipskupon div.content div.formulation div.audioplay.playing {
+    background-image: url('/question/type/turtipskupon/pix/icon_pause.png');
+    background-position: left top;
+    height: 20px;
+    width: 20px;
 }

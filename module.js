@@ -24,36 +24,44 @@
 
 M.qtype_turtipskupon = M.qtype_turtipskupon || {};
 
+M.qtype_turtipskupon.init = function (Y, questiondiv, quiet, autoplay) {
 
-M.qtype_turtipskupon.init = function (Y, questiondiv) {
-
-    // All the code below taken from the multianswer question type
-
-    /*
-    Y.one(questiondiv).all('span.subquestion').each(function(subqspan) {
-        var feedbackspan = subqspan.one('.feedbackspan');
-        if (!feedbackspan) {
-            return;
+    var initialplaythroughcomplete = false;
+    var current = 0;
+    var audio = $('#audiodiv');
+    var playlist = $(questiondiv);
+    var tracks = playlist.find('.content .formulation .audioplay');
+    if (!quiet && autoplay == 1) {
+        var playing = $(playlist.find('.audioplay')[current]);
+        playing.addClass('playing');
+        audio[0].play();
+    }
+    audio[0].addEventListener('ended',function(e){
+        $('.audioplay').removeClass('playing');
+        if (current != tracks.length - 1 && !initialplaythroughcomplete) {
+            current++;
+            playing = $(playlist.find('.audioplay')[current]);
+            playing.addClass('playing');
+            audio[0].src = $(playlist.find('.audioplay')[current]).attr('data-src');
+            audio[0].load();
+            audio[0].play();
+        } else {
+            initialplaythroughcomplete = true;
         }
-
-        var overlay = new Y.Overlay({
-            srcNode: feedbackspan,
-            visible: false,
-            align: {
-                node: subqspan,
-                points: [Y.WidgetPositionAlign.TC, Y.WidgetPositionAlign.BC]
-            },
-            constrain: subqspan.ancestor('div.que'),
-            zIndex: 1,
-            preventOverlap: true
-        });
-        overlay.render();
-
-        Y.on('mouseover', function() { overlay.show(); }, subqspan);
-        Y.on('mouseout', function() { overlay.hide(); }, subqspan);
-
-        feedbackspan.removeClass('accesshide');
     });
-    */
 
+    $('.audioplay').click(function(e) {
+        initialplaythroughcomplete = true;
+        if ($(this).hasClass('playing')) {
+            audio.trigger('pause');
+            $(this).removeClass('playing');
+        } else {
+            audio.trigger('pause');
+            $('.audioplay').removeClass('playing');
+            audio[0].src = $(this).data('src');
+            audio[0].load();
+            audio[0].play();
+            $(this).addClass('playing');
+        }
+    });
 };

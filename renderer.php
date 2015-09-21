@@ -91,9 +91,9 @@ abstract class qtype_turtipskupon_renderer_base extends qtype_with_combined_feed
                 unset($inputattributes['checked']);
             }
 
-            $answersound = html_writer::div('', 'audioplay',
-                    array('data-src' => $this->get_answersound($ans,
-                            $question->contextid, $qa->get_slot(), $qa->get_usage_id())));
+            $answersound = ($answersoundurl = $this->get_answersound($ans,
+                    $question->contextid, $qa->get_slot(), $qa->get_usage_id())) ?
+                        html_writer::div('', 'audioplay', array('data-src' => $answersoundurl)) : '';
 
             $hidden = '';
             if (!$options->readonly && $this->get_input_type() == 'checkbox') {
@@ -141,9 +141,18 @@ abstract class qtype_turtipskupon_renderer_base extends qtype_with_combined_feed
         }
 
         $result = '';
+
+        $questionsoundurl = $this->get_questionsound($question->id,
+                $question->contextid, $qa->get_slot(), $qa->get_usage_id());
+        $audiosource = html_writer::tag('source', '',
+                array('type' => 'audio/mpeg', 'src' => $questionsoundurl));
+        $audiosource .= 'Your browser does not support the audio tag.'; // TODO: Lang string
+        $audioelement = html_writer::tag('audio', $audiosource,
+                array('id' => 'audiodiv'));
+        $result .= $audioelement;
+
         $result .= html_writer::div('', 'audioplay',
-                array('data-src' => $this->get_questionsound($question->id,
-                        $question->contextid, $qa->get_slot(), $qa->get_usage_id())));
+                array('data-src' => $questionsoundurl));
         $result .= html_writer::tag('div', $question->format_questiontext($qa),
                 array('class' => 'qtext'));
 
