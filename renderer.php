@@ -154,10 +154,11 @@ abstract class qtype_turtipskupon_renderer_base extends qtype_with_combined_feed
         $audioelement = html_writer::tag('audio', $audiosource,
                 array('id' => 'audiodiv'));
 
+        $result .= $audioelement;
+
         // Although in Turtipskupon question types we are not outputting this to the renderer,
         // so we are commenting this out:
         /*
-        $result .= $audioelement;
         $result .= html_writer::div('', 'audioplay',
                 array('data-src' => $questionsoundurl));
         $result .= html_writer::tag('div', $question->format_questiontext($qa),
